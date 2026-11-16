@@ -151,7 +151,7 @@ export function refreshMenuUI(saveData, onSave) {
   }
 
   const wId = parseInt(document.getElementById('sel-weapon').value) || 0;
-  const w = WEAPONS[wId];
+  const w = WEAPONS.at(wId) || WEAPONS.at(0);
   const wUnlocked = saveData.unlockedWeapons.includes(wId);
   document.getElementById('weapon-stats').innerText =
     `DMG: ${w.dmg} | Mag: ${w.mag} | Scope: ${w.scope} | ${wUnlocked ? 'OWNED' : 'Cost: $' + w.price}`;
@@ -188,16 +188,16 @@ export function refreshMenuUI(saveData, onSave) {
     }
   }
 
-  if (!saveData.unlockedScopes) saveData.unlockedScopes =;
-  if (!saveData.unlockedGrips) saveData.unlockedGrips =;
-  if (!saveData.unlockedMuzzles) saveData.unlockedMuzzles =;
+  if (!saveData.unlockedScopes) saveData.unlockedScopes = new Array(1).fill(0);
+  if (!saveData.unlockedGrips) saveData.unlockedGrips = new Array(1).fill(0);
+  if (!saveData.unlockedMuzzles) saveData.unlockedMuzzles = new Array(1).fill(0);
 
   const updateAttBtn = (selId, btnId, pool, unlockedArr, equippedId) => {
     const sel = document.getElementById(selId);
     const btn = document.getElementById(btnId);
     if (!sel || !btn) return;
     const id = parseInt(sel.value) || 0;
-    const cfg = pool.find(x => x.id === id) || pool[0];
+    const cfg = pool.find(x => x.id === id) || pool.at(0);
     if (equippedId === id) {
       btn.innerText = 'Equipped';
     } else if (unlockedArr.includes(id)) {
@@ -211,9 +211,9 @@ export function refreshMenuUI(saveData, onSave) {
   updateAttBtn('sel-grip', 'btn-buy-grip', GUN_GRIPS, saveData.unlockedGrips, saveData.equippedGrip || 0);
   updateAttBtn('sel-muzzle', 'btn-buy-muzzle', GUN_MUZZLES, saveData.unlockedMuzzles, saveData.equippedMuzzle || 0);
 
-  const eqScope = GUN_SCOPES.find(s => s.id === (saveData.equippedScope || 0)) || GUN_SCOPES[0];
-  const eqGrip = GUN_GRIPS.find(g => g.id === (saveData.equippedGrip || 0)) || GUN_GRIPS[0];
-  const eqMuzzle = GUN_MUZZLES.find(m => m.id === (saveData.equippedMuzzle || 0)) || GUN_MUZZLES[0];
+  const eqScope = GUN_SCOPES.find(s => s.id === (saveData.equippedScope || 0)) || GUN_SCOPES.at(0);
+  const eqGrip = GUN_GRIPS.find(g => g.id === (saveData.equippedGrip || 0)) || GUN_GRIPS.at(0);
+  const eqMuzzle = GUN_MUZZLES.find(m => m.id === (saveData.equippedMuzzle || 0)) || GUN_MUZZLES.at(0);
 
   const totalRecoilReduction = Math.round((1 - eqGrip.recoilMult * eqMuzzle.recoilMult) * 100);
   const statsEl = document.getElementById('gunsmith-stats');
@@ -224,7 +224,7 @@ export function refreshMenuUI(saveData, onSave) {
   const charmSel = document.getElementById('sel-weapon-charm');
   const charmBtn = document.getElementById('btn-buy-charm');
   if (charmSel && charmBtn) {
-    if (!saveData.unlockedCharms) saveData.unlockedCharms =;
+    if (!saveData.unlockedCharms) saveData.unlockedCharms = new Array(1).fill(0);
     const currentVal = parseInt(charmSel.value) || saveData.equippedCharm || 0;
     charmSel.innerHTML = '';
     WEAPON_CHARMS.forEach(ch => {
@@ -238,7 +238,7 @@ export function refreshMenuUI(saveData, onSave) {
       charmSel.appendChild(opt);
     });
 
-    const selectedCharm = WEAPON_CHARMS.find(c => c.id === currentVal) || WEAPON_CHARMS[0];
+    const selectedCharm = WEAPON_CHARMS.find(c => c.id === currentVal) || WEAPON_CHARMS.at(0);
     const isOwned = saveData.unlockedCharms.includes(selectedCharm.id);
     if (saveData.equippedCharm === selectedCharm.id) {
       charmBtn.innerText = `Equipped: ${selectedCharm.name}`;
@@ -250,7 +250,7 @@ export function refreshMenuUI(saveData, onSave) {
   }
 
   const aTier = parseInt(document.getElementById('sel-armor').value) || 1;
-  const a = ARMORS.find(x => x.tier === aTier);
+  const a = ARMORS.find(x => x.tier === aTier) || ARMORS.at(0);
   const aUnlocked = saveData.unlockedArmors.includes(aTier);
   document.getElementById('armor-stats').innerText =
     `AP: ${a.ap} | Absorb: ${Math.round(a.absorb * 100)}% | ${aUnlocked ? 'OWNED' : 'Cost: $' + a.price}`;
@@ -271,7 +271,7 @@ export function refreshMenuUI(saveData, onSave) {
       sellGunBtn.style.opacity = '0.5';
     } else {
       sellableIds.forEach(id => {
-        const gun = WEAPONS[id];
+        const gun = WEAPONS.at(id);
         if (!gun) return;
         const sellPrice = Math.floor(gun.price * 0.6);
         const opt = document.createElement('option');
@@ -285,7 +285,7 @@ export function refreshMenuUI(saveData, onSave) {
     }
   }
 
-  const q = QUESTS[Math.min(saveData.questIdx, QUESTS.length - 1)];
+  const q = QUESTS.at(Math.min(saveData.questIdx, QUESTS.length - 1));
   document.getElementById('quest-title').innerText = q.title;
   document.getElementById('quest-desc').innerText = q.desc;
   document.getElementById('quest-prog').innerText = `${Math.min(saveData.questKills, q.target)} / ${q.target}`;
@@ -304,8 +304,8 @@ export function refreshMenuUI(saveData, onSave) {
   renderDailyBountiesUI(saveData, onSave);
 }
 export function updateHUD(player, modeState, saveData) {
-  const w = WEAPONS[player.weaponIdx];
-  const a = ARMORS.find(x => x.tier === player.armorTier) || ARMORS[0];
+  const w = WEAPONS.at(player.weaponIdx) || WEAPONS.at(0);
+  const a = ARMORS.find(x => x.tier === player.armorTier) || ARMORS.at(0);
 
   document.getElementById('hud-hp').innerText = Math.max(0, Math.ceil(player.hp));
   document.getElementById('hp-fill').style.width = `${Math.max(0, (player.hp / player.maxHp) * 100)}%`;
@@ -410,7 +410,7 @@ export function addKillfeedBanner(killer, weaponName, victim, isFriendly = false
   }, 4500);
 }
 
-export function drawRadar(player, aimAngle, aiDucks, chests, zones, vehicles = [], activePings = [], remoteDucks = [], bunkerStations = []) {
+export function drawRadar(player, aimAngle, aiDucks, chests, zones, vehicles = new Array(), activePings = new Array(), remoteDucks = new Array(), bunkerStations = new Array()) {
   const canvas = document.getElementById('radar');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, 170, 170);
@@ -421,7 +421,7 @@ export function drawRadar(player, aimAngle, aiDucks, chests, zones, vehicles = [
 
   ctx.strokeStyle = 'rgba(0, 229, 255, 0.16)';
   ctx.lineWidth = 1;
-  [28, 56, 82].forEach(r => {
+  new Array(28, 56, 82).forEach(r => {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
