@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape from Duckov 3D</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="fps-counter" style="display:none;">60 FPS</div>
+
+  <div id="auth-screen">
+    <div class="auth-box">
+      <div class="fn-news-badge" style="font-size:12px;">DUCKOV NETWORK • OPERATOR ID</div>
+      <h1 style="font-size:30px; font-weight:900; color:#f7ff19; margin:4px 0 8px;">SIGN IN TO DEPLOY</h1>
+      <p style="font-size:12.5px; color:#b0c4de; margin-bottom:14px;">
+        Log in with your Gamertag & Password, or create a new Gamertag to save your progress.
+      </p>
+      <input id="auth-gamertag" type="text" placeholder="Enter Gamertag (e.g. QuackSniper)" maxlength="16" class="auth-input" />
+      <input id="auth-password" type="password" placeholder="Enter Password" maxlength="24" class="auth-input" />
+      <div id="auth-error" class="auth-error"></div>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button id="btn-auth-login" class="fn-btn-play" style="font-size:16px; padding:12px;">LOG IN</button>
+        <button id="btn-auth-register" class="fn-mini-btn" style="font-size:14px; padding:12px; background:#00838f;">CREATE GAMERTAG</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="lobby-ui">
+    <div class="fn-topbar">
+      <div class="fn-nav-tabs">
+        <button class="fn-tab active" data-tab="play">PLAY</button>
+        <button class="fn-tab" data-tab="locker">LOCKER</button>
+        <button class="fn-tab" data-tab="bunker">BUNKER & SHOP</button>
+        <button class="fn-tab" data-tab="quests">QUESTS</button>
+        <button class="fn-tab" data-tab="career">CAREER</button>
+        <button class="fn-tab" data-tab="settings">SETTINGS</button>
+      </div>
+      <div class="fn-currency-pill">
+        <span class="coin-icon">D</span>
+        <strong id="menu-cash">5,000</strong>
+      </div>
+    </div>
+
+    <div id="tab-play" class="fn-tab-view active">
+      <div class="fn-news-card">
+        <div class="fn-news-badge">ACTIVE REGION</div>
+        <div class="fn-news-title" id="lobby-region-name">GROUND ZERO</div>
+        <div class="fn-news-sub" id="lobby-region-hazard">Standard Daylight • Marauder Patrols</div>
+        <select id="sel-map" class="fn-mini-select"></select>
+      </div>
+
+      <div id="agent-role-card" class="fn-agent-card" style="display:none;">
+        <div class="fn-news-badge">DUCKORANT 5v5 AGENT</div>
+        <select id="sel-agent-role" class="fn-mini-select" style="margin-top:6px;">
+          <option value="duelist">Duelist: Jett-Duck (Q: Tailwind Dash)</option>
+          <option value="initiator">Initiator: Sova-Duck (Q: Recon Scan)</option>
+          <option value="controller">Controller: Viper-Duck (Q: Smoke Wall)</option>
+          <option value="sentinel">Sentinel: Killjoy-Duck (Q: Auto-Turret)</option>
+        </select>
+        <div id="agent-role-desc" class="fn-news-sub" style="margin-top:6px; margin-bottom:0;">
+          High-speed directional dash + instant magazine reload + 2.5s rapid fire.
+        </div>
+      </div>
+
+      <div class="fn-online-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="fn-news-badge">ONLINE SQUAD & LOBBY</div>
+          <button id="btn-logout" class="btn-small" style="padding:2px 8px; font-size:10px;">Switch Tag</button>
+        </div>
+        <div id="mp-status" class="fn-news-sub" style="margin-top:4px; margin-bottom:8px; color:#80deea;">
+          Solo • Signed in as <strong id="mp-self-tag">DuckOperator_01</strong>
+        </div>
+        <button id="btn-host-room" class="fn-mini-btn" style="background:#00838f;">CREATE ONLINE ROOM</button>
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <input id="inp-room-code" type="text" placeholder="ROOM CODE" maxlength="8" class="fn-code-input" />
+          <button id="btn-join-room" class="fn-mini-btn" style="width:auto; padding:6px 12px;">JOIN</button>
+        </div>
+        <div class="online-list-header">WHO IS ONLINE (<span id="online-count">1</span>)</div>
+        <div id="online-players-list" class="online-players-list"></div>
+      </div>
+
+      <div class="fn-player-tag">
+        <div class="fn-tag-name" id="lobby-gamertag">DuckOperator_01</div>
+        <div class="fn-tag-status">Ready • <span id="lobby-skin-label">Classic Yellow Duck</span></div>
+      </div>
+
+      <div id="lobby-inspect-badge" class="fn-inspect-badge" style="display:none;">
+        INSPECTING: <strong id="lobby-inspect-text">AK-47 Rifle • Factory Matte</strong>
+      </div>
+
+      <button class="fn-squad-plus pos-1" title="Squad Slot Open">+</button>
+      <button class="fn-squad-plus pos-2" title="Squad Slot Open">+</button>
+      <button class="fn-squad-plus pos-3" title="Squad Slot Open">+</button>
+
+      <div class="fn-play-dock">
+        <div class="fn-mode-card">
+          <div class="fn-mode-title" id="lobby-mode-title">ESCAPE FROM DUCKOV</div>
+          <button id="btn-cycle-mode" class="fn-btn-gamemode">
+            <span class="gm-main" id="lobby-mode-btn-text">GAME MODE: EXTRACTION</span>
+            <span class="gm-sub" id="lobby-mode-sub">SOLO / CO-OP • CLICK TO SWITCH</span>
+          </button>
+        </div>
+        <button id="btn-deploy" class="fn-btn-play">PLAY</button>
+      </div>
+
+      <div class="fn-bottom-right">
+        <div class="fn-lvl-box"><span>LVL</span><strong id="lobby-lvl">1</strong></div>
+        <button id="btn-emote" class="fn-btn-secondary">QUACK / SPIN</button>
+      </div>
+    </div>
+    <div id="tab-locker" class="fn-tab-view fn-modal-panel">
+      <h2>DUCK LOCKER & GUNSMITH LOADOUT</h2>
+      <div class="locker-layout">
+        <div class="fn-panel-box">
+          <h3>OUTFITS & FEATHER SKINS (<span id="skin-count">9</span>)</h3>
+          <div id="skin-cards-grid" class="skin-grid"></div>
+        </div>
+
+        <div class="locker-side-col">
+          <div class="fn-panel-box">
+            <h3>PRIMARY WEAPON & MASTERY</h3>
+            <select id="sel-weapon"></select>
+            <div id="weapon-stats" class="fn-hint"></div>
+            <div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.12); padding-top:8px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:#f7ff19; font-weight:800;">
+                <span>WEAPON MASTERY CAMO</span>
+                <span id="mastery-kills-label">0 Kills</span>
+              </div>
+              <select id="sel-weapon-camo" style="margin-top:5px;"></select>
+              <div id="mastery-next-hint" class="fn-hint" style="margin-top:5px; color:#80deea;"></div>
+            </div>
+          </div>
+
+          <div class="fn-panel-box">
+            <h3>GUNSMITH: SCOPES, GRIPS & MUZZLES</h3>
+            <label class="set-label" style="margin-top:4px;">OPTIC / SCOPE</label>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <select id="sel-scope" style="margin-top:0; flex:1;"></select>
+              <button id="btn-buy-scope" class="btn-small">Equip</button>
+            </div>
+            <label class="set-label">UNDERBARREL FOREGRIP</label>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <select id="sel-grip" style="margin-top:0; flex:1;"></select>
+              <button id="btn-buy-grip" class="btn-small">Equip</button>
+            </div>
+            <label class="set-label">MUZZLE ATTACHMENT</label>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <select id="sel-muzzle" style="margin-top:0; flex:1;"></select>
+              <button id="btn-buy-muzzle" class="btn-small">Equip</button>
+            </div>
+            <div id="gunsmith-stats" class="fn-hint" style="color:#80deea;">Recoil Control: +0% • Scope Zoom: +0°</div>
+            <div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.12); padding-top:8px;">
+              <div style="font-size:11px; color:#80deea; font-weight:800;">3D WEAPON CHARM KEYCHAIN</div>
+              <select id="sel-weapon-charm" style="margin-top:5px;"></select>
+              <button id="btn-buy-charm" style="margin-top:6px;">Equip Charm</button>
+            </div>
+          </div>
+
+          <div class="fn-panel-box">
+            <h3>BODY ARMOR & RIG</h3>
+            <select id="sel-armor"></select>
+            <div id="armor-stats" class="fn-hint"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-bunker" class="fn-tab-view fn-modal-panel">
+      <h2>BUNKER HIDEOUT & ITEM SHOP</h2>
+      <div class="fn-grid-2">
+        <div class="fn-panel-box">
+          <div class="stash-header">
+            <h3>EXTRACTED STASH (<span id="stash-count">0</span>/12)</h3>
+            <button id="btn-sell-all" class="btn-small">Sell All Loot</button>
+          </div>
+          <div id="stash-grid" class="item-grid"></div>
+          <button id="btn-buy-supply" style="margin-top:10px;">Buy Field Medkit + Armor Plate ($400)</button>
+          <button id="btn-buy-rations" style="margin-top:6px;">Buy Canned Peas + Water Bottle ($250)</button>
+          <button id="btn-buy-stims" style="margin-top:6px;">Buy Painkillers + Energy Injector ($550)</button>
+          <button id="btn-buy-thermal" style="margin-top:6px;">Buy T-7 Thermal Goggles ($3,500)</button>
+          <button id="btn-buy-nades" style="margin-top:6px;">Buy Grenade Pack: 1 Frag + 1 Smoke + 1 Flash ($650)</button>
+          <button id="btn-buy-fuel" style="margin-top:6px;">Buy Fuel Jerrycan ($300)</button>
+          <div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.12); padding-top:8px;">
+            <div style="font-size:11px; color:#80deea; font-weight:800;">ARMORY WEAPON TRADE-IN</div>
+            <div style="display:flex; gap:6px; margin-top:5px;">
+              <select id="sel-sell-gun" style="margin-top:0; flex:1;"></select>
+              <button id="btn-sell-gun" class="btn-small" style="background:#b71c1c; border-color:#ef5350;">Sell Gun</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fn-panel-box">
+          <h3>MODULAR BASE STATIONS</h3>
+          <button id="upg-gym" class="upg-btn">Gym Station Lv.<span id="lvl-gym">1</span> (+20 Max HP) — $1,500</button>
+          <button id="upg-bench" class="upg-btn">Weapon Workbench Lv.<span id="lvl-bench">1</span> (+15% DMG) — $2,000</button>
+          <button id="upg-medic" class="upg-btn">Medic Station Lv.<span id="lvl-medic">1</span> (+25 Stamina) — $1,500</button>
+          <div id="corpse-alert" class="corpse-banner" style="display:none; margin-top:10px;">
+            Unrecovered Corpse on <span id="corpse-map-name">Ground Zero</span>! Deploy there to reclaim your gear.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-quests" class="fn-tab-view fn-modal-panel">
+      <h2>DAILY LOGIN & BOUNTY CHALLENGES</h2>
+      <div class="fn-grid-2">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="fn-panel-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0;">DAILY LOGIN SUPPLY DROP</h3>
+              <span id="daily-streak-badge" class="streak-pill">DAY 1 STREAK</span>
+            </div>
+            <p class="fn-hint" style="margin:8px 0 12px;">
+              Sign in every day to build your streak! Consecutive days increase your Roubles payout.
+            </p>
+            <button id="btn-claim-daily" class="fn-btn-play" style="font-size:15px; padding:11px;">
+              CLAIM DAILY REWARD (+$1,000)
+            </button>
+          </div>
+          <div class="fn-panel-box">
+            <h3>MAIN NPC CAMPAIGN MISSION</h3>
+            <div style="color:#f7ff19; font-weight:bold; font-size:16px;">
+              ACTIVE MISSION: <span id="quest-title">Scav Hunter</span>
+            </div>
+            <p id="quest-desc" style="margin:8px 0; color:#cfd8dc; font-size:13px;">
+              Eliminate 3 hostile ducks in any mode.
+            </p>
+            <div style="font-size:13px; color:#4fc3f7;">
+              Progress: <strong id="quest-prog">0 / 3</strong> • Reward: <strong class="cash-text" id="quest-reward">$1,500</strong>
+            </div>
+          </div>
+        </div>
+        <div class="fn-panel-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="margin:0;">DAILY BOUNTY CHALLENGES</h3>
+            <span style="font-size:11px; color:#90caf9;">Resets Daily</span>
+          </div>
+          <div id="daily-bounties-list" class="bounty-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-career" class="fn-tab-view fn-modal-panel">
+      <h2>CAREER STATS</h2>
+      <div class="fn-panel-box" style="max-width: 520px; margin: 0 auto;">
+        <div class="stat-row"><span>Successful Extracts / Wins:</span><strong id="menu-extracts">0</strong></div>
+        <div class="stat-row"><span>Total Duck Eliminations:</span><strong id="menu-kills">0</strong></div>
+        <button id="btn-reset" class="btn-danger" style="margin-top:16px;">Reset All Save Data</button>
+      </div>
+    </div>
+
+    <div id="tab-settings" class="fn-tab-view fn-modal-panel">
+      <h2>GRAPHICS & KEYBIND SETTINGS</h2>
+      <div class="fn-grid-2">
+        <div class="fn-panel-box">
+          <h3>GRAPHICS & PERFORMANCE</h3>
+          <label class="set-label">Graphics Preset</label>
+          <select id="set-gfx-preset">
+            <option value="low">Low (Chromebook FPS Boost)</option>
+            <option value="medium">Medium (Balanced)</option>
+            <option value="high" selected>High (Detailed Shadows & Lights)</option>
+            <option value="ultra">Ultra (Full Resolution + Max FX)</option>
+          </select>
+          <label class="set-label">3D Resolution Scale (<span id="set-res-label">100%</span>)</label>
+          <input id="set-res-scale" type="range" min="50" max="125" step="25" value="100" style="width:100%; margin-top:6px;" />
+          <div class="set-toggle-row"><span>Dynamic 3D Shadows</span><input id="set-shadows" type="checkbox" checked /></div>
+          <div class="set-toggle-row"><span>Bullet Tracers, Muzzle Flashes & Casings</span><input id="set-fx" type="checkbox" checked /></div>
+          <div class="set-toggle-row"><span>2D Vision Cone Fog-of-War</span><input id="set-fog" type="checkbox" checked /></div>
+          <div class="set-toggle-row"><span>Camera Recoil Shake</span><input id="set-shake" type="checkbox" checked /></div>
+          <div class="set-toggle-row"><span>Show Live FPS Counter</span><input id="set-fps" type="checkbox" /></div>
+        </div>
+        <div class="fn-panel-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="margin:0;">CONTROLS & KEYBINDS</h3>
+            <button id="btn-reset-binds" class="btn-small">Reset Defaults</button>
+          </div>
+          <p class="fn-hint" style="margin-top:0; margin-bottom:8px;">
+            Click any key button below, then press the new key you want to bind.
+          </p>
+          <div id="keybinds-list" class="keybinds-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="backpack-modal">
+    <div class="backpack-window">
+      <div class="bp-header">
+        <h3>TACTICAL BACKPACK (<span id="bp-slots">0</span> / 10 Slots)</h3>
+        <span>Value: <strong class="cash-text">$<span id="bp-value">0</span></strong></span>
+        <button id="btn-close-bp" class="btn-small">Close [Tab]</button>
+      </div>
+      <div id="backpack-grid" class="item-grid"></div>
+      <div class="bp-footer">Left-Click to Use / Equip • Right-Click to Drop</div>
+    </div>
+  </div>
+
+  <div id="buy-modal">
+    <div class="buy-window">
+      <div class="buy-header">
+        <div>
+          <h3 style="color:#ff5252; letter-spacing:1px;">5v5 ARMORY • BUY PHASE (<span id="buy-timer">12</span>s)</h3>
+          <div style="font-size:12px; color:#b0bec5;">Round <span id="buy-round-num">1</span> • Blue <strong id="buy-score-blue">0</strong> - <strong id="buy-score-red">0</strong> Red</div>
+        </div>
+        <div class="creds-pill">CREDS: <strong id="buy-creds">800</strong></div>
+        <button id="btn-ready-round" class="btn-small" style="background:#27ae60; border-color:#2ecc71;">READY [B]</button>
+      </div>
+      <div class="buy-grid">
+        <div class="buy-col">
+          <h4>WEAPONS</h4>
+          <button class="buy-item-btn" data-buy="weapon" data-id="1" data-cost="950">MP5 SMG <span>950 Creds</span></button>
+          <button class="buy-item-btn" data-buy="weapon" data-id="0" data-cost="2100">AK-47 Rifle <span>2,100 Creds</span></button>
+          <button class="buy-item-btn" data-buy="weapon" data-id="3" data-cost="2900">M4A1 Tactical <span>2,900 Creds</span></button>
+          <button class="buy-item-btn" data-buy="weapon" data-id="2" data-cost="4700">VPO-101 Sniper <span>4,700 Creds</span></button>
+        </div>
+        <div class="buy-col">
+          <h4>SHIELDS & UTILITY</h4>
+          <button class="buy-item-btn" data-buy="shield" data-tier="1" data-cost="400">Light Shields (50 AP) <span>400 Creds</span></button>
+          <button class="buy-item-btn" data-buy="shield" data-tier="2" data-cost="1000">Heavy Shields (100 AP) <span>1,000 Creds</span></button>
+          <button class="buy-item-btn" data-buy="ability" data-cost="300">Recharge [Q] Ability <span>300 Creds</span></button>
+          <button class="buy-item-btn" data-buy="grenades" data-cost="500">Smoke [V] + Flash [C] <span>500 Creds</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scoreboard-modal">
+    <div class="sb-window">
+      <div class="sb-header">
+        <h3 id="sb-title">MATCH SCOREBOARD</h3>
+        <span id="sb-subtitle" style="font-size:12px; color:#80deea;">Hold [M] to View</span>
+      </div>
+      <div id="sb-rows" class="sb-rows"></div>
+    </div>
+  </div>
+
+  <div id="pause-modal">
+    <div class="pause-window">
+      <div class="pause-header">
+        <div>
+          <div class="fn-news-badge">MATCH PAUSED</div>
+          <h2 style="font-size:24px; font-weight:900; color:#f7ff19; margin-top:2px;">TACTICAL MENU</h2>
+        </div>
+        <button id="btn-pause-resume" class="btn-small" style="background:#27ae60; border-color:#2ecc71; font-weight:900;">RESUME [ESC]</button>
+      </div>
+      <div class="pause-grid">
+        <div class="pause-col">
+          <h4>QUICK GRAPHICS & FPS</h4>
+          <label class="set-label" style="margin-top:4px;">Graphics Preset</label>
+          <select id="pause-gfx-preset">
+            <option value="low">Low (Chromebook FPS Boost)</option>
+            <option value="medium">Medium (Balanced)</option>
+            <option value="high">High (Detailed Shadows)</option>
+            <option value="ultra">Ultra (Max FX)</option>
+          </select>
+          <div class="set-toggle-row"><span>Show Live FPS Counter</span><input id="pause-set-fps" type="checkbox" /></div>
+          <div class="set-toggle-row"><span>Dynamic 3D Shadows</span><input id="pause-set-shadows" type="checkbox" /></div>
+          <div class="set-toggle-row"><span>Tracers, Flashes & Casings</span><input id="pause-set-fx" type="checkbox" /></div>
+          <div class="set-toggle-row"><span>2D Vision Cone Fog-of-War</span><input id="pause-set-fog" type="checkbox" /></div>
+        </div>
+        <div class="pause-col" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <h4>ACTIVE CONTROLS</h4>
+            <div id="pause-binds-summary" class="pause-binds-box"></div>
+          </div>
+          <div style="margin-top:14px;">
+            <button id="btn-pause-leave" class="btn-danger" style="font-weight:900; padding:11px;">LEAVE MATCH TO LOBBY</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="match-summary-modal">
+    <div class="summary-window">
+      <div id="sum-outcome-badge" class="sum-badge win">EXTRACTED SAFELY</div>
+      <h1 id="sum-title" class="sum-title">RAID COMPLETE</h1>
+      <div id="sum-subtitle" class="sum-sub">Ground Zero • Extraction Mode</div>
+      <div class="mvp-card">
+        <div class="mvp-crown">MATCH MVP</div>
+        <div id="sum-mvp-name" class="mvp-name">DuckOperator_01</div>
+        <div id="sum-mvp-stats" class="mvp-stats">0 Eliminations • Highest Combat Score</div>
+      </div>
+      <div class="sum-stats-grid">
+        <div class="sum-stat-box"><span>ELIMINATIONS</span><strong id="sum-kills">0</strong></div>
+        <div class="sum-stat-box"><span>K/D RATIO</span><strong id="sum-kd">0.00</strong></div>
+        <div class="sum-stat-box"><span>ACCURACY</span><strong id="sum-acc">0%</strong></div>
+        <div class="sum-stat-box"><span>ROUBLES EARNED</span><strong id="sum-cash" class="cash-text">+$0</strong></div>
+      </div>
+      <div id="sum-extra-note" class="sum-note"></div>
+      <button id="btn-sum-continue" class="fn-btn-play" style="margin-top: 16px; font-size: 20px; padding: 14px;">RETURN TO LOBBY</button>
+    </div>
+  </div>
+
+  <div id="hud">
+    <canvas id="fog-canvas"></canvas>
+    <div id="flash-overlay"></div>
+    <div id="damage-layer"></div>
+    <div id="dynamic-crosshair">
+      <div id="reticle-ring" class="reticle-ring"></div>
+      <div class="reticle-dot"></div>
+      <span id="ret-top" class="ret-tick top"></span>
+      <span id="ret-bot" class="ret-tick bot"></span>
+      <span id="ret-left" class="ret-tick left"></span>
+      <span id="ret-right" class="ret-tick right"></span>
+    </div>
+    <div id="hitmarker">
+      <span class="hm-line tl"></span>
+      <span class="hm-line tr"></span>
+      <span class="hm-line bl"></span>
+      <span class="hm-line br"></span>
+    </div>
+    <div id="status-panel">
+      <div class="hud-row"><span>HP: <strong id="hud-hp">100</strong></span><span id="hud-mode-label" class="accent-text">EXTRACTION</span></div>
+      <div class="bar-wrap"><div id="hp-fill"></div></div>
+      <div class="hud-row"><span>Armor (T<span id="hud-tier">1</span>): <strong id="hud-armor">50</strong></span><span id="hud-weapon-name" class="accent-text">AK-47</span></div>
+      <div class="bar-wrap"><div id="armor-fill"></div></div>
+      <div class="hud-row"><span>Stamina (Roll)</span><span>Ammo: <strong id="hud-ammo">30 / 30</strong></span></div>
+      <div class="bar-wrap"><div id="stamina-fill"></div></div>
+      <div class="hud-row"><span>Energy (Food): <strong id="hud-hunger">100</strong>%</span><span>Hydration: <strong id="hud-thirst">100</strong>%</span></div>
+      <div class="dual-bar-row">
+        <div class="bar-wrap half"><div id="hunger-fill"></div></div>
+        <div class="bar-wrap half"><div id="thirst-fill"></div></div>
+      </div>
+      <div class="hud-row" style="margin-top: 6px; font-size: 11px;">
+        <span>Med:<strong id="hud-medkits">1</strong> Plt:<strong id="hud-plates">1</strong> Food:<strong id="hud-food">1</strong> H2O:<strong id="hud-water">1</strong></span>
+      </div>
+      <div class="hud-row" style="margin-top: 3px; font-size: 11px;">
+        <span>Pills:<strong id="hud-pills">1</strong> Stim:<strong id="hud-stims">1</strong></span>
+        <span class="cash-text" id="hud-extra-stat">$0</span>
+      </div>
+      <div class="hud-row" style="margin-top: 3px; font-size: 11px;">
+        <span>Frag[G]:<strong id="hud-frags">1</strong> Smk[V]:<strong id="hud-smokes">1</strong> Flsh[C]:<strong id="hud-flashes">1</strong> Fuel:<strong id="hud-fuel">1</strong></span>
+      </div>
+      <div id="hud-buffs" class="buff-bar"></div>
+      <div id="hud-thermal-status" class="thermal-indicator" style="display:none;">T-7 THERMAL: OFF [Press T]</div>
+      <div id="hud-ability-box" class="ability-indicator" style="display:none;">
+        [Q] <span id="hud-ability-name">TAILWIND DASH</span>: <strong id="hud-ability-cd">READY</strong>
+      </div>
+    </div>
+    <div id="top-banner"></div>
+    <canvas id="radar" width="170" height="170"></canvas>
+    <div id="killfeed"></div>
+    <div id="center-alert"></div>
+    <div id="prompt-text">Press [E] to Loot Container</div>
+    <div id="loot-feed"></div>
+    <div id="spectate-banner" style="display:none;">
+      <div style="font-size:11px; color:#80deea; letter-spacing:1px;">SPECTATING TEAMMATE • LEFT-CLICK TO SWITCH</div>
+      <div id="spectate-target-name" style="font-size:20px; font-weight:900; color:#2ecc71;">Mallard_Bot</div>
+    </div>
+    <div id="controls-bar">
+      <strong>WASD</strong> Move | <strong>Mouse</strong> Aim | <strong>LMB</strong> Shoot | <strong>Z</strong> Ping | <strong>E</strong> Loot/Car | <strong>G/V/C</strong> Nades | <strong>T</strong> Thermal | <strong>Tab</strong> Bag | <strong>M</strong> Score | <strong>Enter</strong> Chat | <strong>Esc</strong> Menu
+    </div>
+  </div>
+
+  <div id="chat-box">
+    <div id="chat-messages"></div>
+    <input id="chat-input" type="text" placeholder="Press [Enter] to type squad message..." maxlength="120" />
+  </div>
+
+  <script src="https://cloudflare.com"></script>
