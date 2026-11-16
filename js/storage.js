@@ -52,23 +52,23 @@ export const DEFAULT_SAVE = {
   equipSuppressor: false,
   hasLaser: false,
   equipLaser: false,
-  unlockedWeapons:,
-  unlockedArmors:,
+  unlockedWeapons: new Array(1).fill(0),
+  unlockedArmors: new Array(1).fill(1),
   unlockedSkins: ["yellow", "mallard"],
   equippedSkin: "yellow",
   weaponKills: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 },
   equippedCamos: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 },
-  unlockedCharms:,
+  unlockedCharms: new Array(1).fill(0),
   equippedCharm: 0,
-  unlockedScopes:,
+  unlockedScopes: new Array(1).fill(0),
   equippedScope: 0,
-  unlockedGrips:,
+  unlockedGrips: new Array(1).fill(0),
   equippedGrip: 0,
-  unlockedMuzzles:,
+  unlockedMuzzles: new Array(1).fill(0),
   equippedMuzzle: 0,
   graphics: { ...DEFAULT_GRAPHICS },
   keybinds: { ...DEFAULT_KEYBINDS },
-  stash: [],
+  stash: new Array(),
   corpse: null,
   questIdx: 0,
   questKills: 0,
@@ -77,8 +77,9 @@ export const DEFAULT_SAVE = {
   dailyStreak: 1,
   lastDailyClaimDate: "",
   dailyChallengeDate: "",
-  dailyBounties: []
+  dailyBounties: new Array()
 };
+
 export function getTodayKey() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -87,11 +88,11 @@ export function ensureDailyChallenges(saveData) {
   const today = getTodayKey();
   if (saveData.dailyChallengeDate !== today || !Array.isArray(saveData.dailyBounties) || saveData.dailyBounties.length === 0) {
     saveData.dailyChallengeDate = today;
-    saveData.dailyBounties = [
+    saveData.dailyBounties = new Array(
       { id: "b_kills", title: "Feather Collector", desc: "Eliminate 5 hostile ducks", type: "kills", progress: 0, target: 5, reward: 1200, claimed: false },
       { id: "b_loots", title: "Scavenger Run", desc: "Open 4 loot containers or weapon crates", type: "loots", progress: 0, target: 4, reward: 900, claimed: false },
       { id: "b_wins", title: "Safe Extraction", desc: "Extract safely or win 1 match", type: "wins", progress: 0, target: 1, reward: 1800, claimed: false }
-    ];
+    );
   }
 }
 
@@ -154,6 +155,7 @@ export function loginAccount(gamertag, password) {
 export function logoutAccount() {
   localStorage.removeItem(ACTIVE_USER_KEY);
 }
+
 export function loadSave() {
   const activeTag = getActiveGamertag();
   if (!activeTag) {
