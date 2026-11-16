@@ -93,24 +93,24 @@ let selectedMode = 'extraction';
 let selectedAgentRole = 'duelist';
 let camShake = 0;
 
-let mapObjects = [];
-let obstacles = [];
-let chests = [];
-let aiDucks = [];
-let bullets = [];
-let vehicles = [];
-let props = [];
-let grenades = [];
-let smokeClouds = [];
-let sentries = [];
-let activePings = [];
-let bunkerStations = [];
-let targetDummies = [];
+let mapObjects = new Array();
+let obstacles = new Array();
+let chests = new Array();
+let aiDucks = new Array();
+let bullets = new Array();
+let vehicles = new Array();
+let props = new Array();
+let grenades = new Array();
+let smokeClouds = new Array();
+let sentries = new Array();
+let activePings = new Array();
+let bunkerStations = new Array();
+let targetDummies = new Array();
 let bunkerWeaponRack = null;
 let bunkerHoloTable = null;
-let swayingFoliage = [];
+let swayingFoliage = new Array();
 let remotePlayerMeshes = new Map();
-let zones = [];
+let zones = new Array();
 let corpseMesh = null;
 let stormWallMesh = null;
 let battleBusMesh = null;
@@ -130,7 +130,7 @@ const player = {
   weaponIdx: 0, ammo: 30, reloading: false,
   isAiming: false, rollTimer: 0,
   rollDir: new THREE.Vector3(),
-  backpack: [],
+  backpack: new Array(),
   medkits: 1, plates: 1,
   food: 1, water: 1,
   pills: 1, stims: 1,
@@ -202,26 +202,26 @@ function applyGraphicsSettings() {
   if (fpsEl) fpsEl.style.display = gfx.showFps ? 'block' : 'none';
 }
 
-const KEYBIND_LABELS = [
-  ['moveUp', 'Move Forward'],
-  ['moveDown', 'Move Backward'],
-  ['moveLeft', 'Move Left'],
-  ['moveRight', 'Move Right'],
-  ['interact', 'Loot / Enter Car / Plant'],
-  ['reload', 'Reload Weapon / Refuel'],
-  ['roll', 'Dodge Roll / Jump Bus'],
-  ['backpack', 'Open Tactical Backpack'],
-  ['scoreboard', 'Hold Match Scoreboard'],
-  ['ping', 'Place 3D Tactical Ping'],
-  ['frag', 'Throw F-1 Frag Grenade'],
-  ['smoke', 'Throw M18 Smoke'],
-  ['flash', 'Throw M84 Flashbang'],
-  ['thermal', 'Toggle T-7 Thermal'],
-  ['ability', '5v5 Agent Signature Ability'],
-  ['inspect', 'Inspect Weapon (Lobby)'],
-  ['horn', 'Vehicle Horn'],
-  ['headlights', 'Vehicle Headlights']
-];
+const KEYBIND_LABELS = new Array(
+  new Array('moveUp', 'Move Forward'),
+  new Array('moveDown', 'Move Backward'),
+  new Array('moveLeft', 'Move Left'),
+  new Array('moveRight', 'Move Right'),
+  new Array('interact', 'Loot / Enter Car / Plant'),
+  new Array('reload', 'Reload Weapon / Refuel'),
+  new Array('roll', 'Dodge Roll / Jump Bus'),
+  new Array('backpack', 'Open Tactical Backpack'),
+  new Array('scoreboard', 'Hold Match Scoreboard'),
+  new Array('ping', 'Place 3D Tactical Ping'),
+  new Array('frag', 'Throw F-1 Frag Grenade'),
+  new Array('smoke', 'Throw M18 Smoke'),
+  new Array('flash', 'Throw M84 Flashbang'),
+  new Array('thermal', 'Toggle T-7 Thermal'),
+  new Array('ability', '5v5 Agent Signature Ability'),
+  new Array('inspect', 'Inspect Weapon (Lobby)'),
+  new Array('horn', 'Vehicle Horn'),
+  new Array('headlights', 'Vehicle Headlights')
+);
 
 let listeningAction = null;
 
@@ -258,7 +258,6 @@ function renderSettingsUI() {
   });
 }
 
-let isPausedState = false;
 function togglePauseMenu(forceState) {
   if (!inRaid) return;
   isPaused = forceState !== undefined ? forceState : !isPaused;
@@ -277,19 +276,19 @@ function togglePauseMenu(forceState) {
     document.getElementById('pause-set-fog').checked = !!gfx.fog;
 
     const binds = getBinds();
-    document.getElementById('pause-binds-summary').innerHTML = [
-      ['Move', `${formatKeyCode(binds.moveUp)}/${formatKeyCode(binds.moveLeft)}/${formatKeyCode(binds.moveDown)}/${formatKeyCode(binds.moveRight)}`],
-      ['Interact / Car', formatKeyCode(binds.interact)],
-      ['Reload / Refuel', formatKeyCode(binds.reload)],
-      ['Dodge Roll / Jump', formatKeyCode(binds.roll)],
-      ['Backpack', formatKeyCode(binds.backpack)],
-      ['Scoreboard', formatKeyCode(binds.scoreboard)],
-      ['Map Ping', formatKeyCode(binds.ping)],
-      ['Frag / Smoke / Flash', `${formatKeyCode(binds.frag)} / ${formatKeyCode(binds.smoke)} / ${formatKeyCode(binds.flash)}`],
-      ['Thermal Goggles', formatKeyCode(binds.thermal)],
-      ['5v5 Ability', formatKeyCode(binds.ability)],
-      ['Inspect Weapon', formatKeyCode(binds.inspect)]
-    ].map(([lbl, keyStr]) => `<div class="pause-bind-line"><span>${lbl}</span><strong>${keyStr}</strong></div>`).join('');
+    document.getElementById('pause-binds-summary').innerHTML = new Array(
+      new Array('Move', `${formatKeyCode(binds.moveUp)}/${formatKeyCode(binds.moveLeft)}/${formatKeyCode(binds.moveDown)}/${formatKeyCode(binds.moveRight)}`),
+      new Array('Interact / Car', formatKeyCode(binds.interact)),
+      new Array('Reload / Refuel', formatKeyCode(binds.reload)),
+      new Array('Dodge Roll / Jump', formatKeyCode(binds.roll)),
+      new Array('Backpack', formatKeyCode(binds.backpack)),
+      new Array('Scoreboard', formatKeyCode(binds.scoreboard)),
+      new Array('Map Ping', formatKeyCode(binds.ping)),
+      new Array('Frag / Smoke / Flash', `${formatKeyCode(binds.frag)} / ${formatKeyCode(binds.smoke)} / ${formatKeyCode(binds.flash)}`),
+      new Array('Thermal Goggles', formatKeyCode(binds.thermal)),
+      new Array('5v5 Ability', formatKeyCode(binds.ability)),
+      new Array('Inspect Weapon', formatKeyCode(binds.inspect))
+    ).map(([lbl, keyStr]) => `<div class="pause-bind-line"><span>${lbl}</span><strong>${keyStr}</strong></div>`).join('');
 
     modal.style.display = 'flex';
   } else {
@@ -340,7 +339,7 @@ function recordWeaponKill(weaponIdx) {
 
   const unlockedCamo = WEAPON_CAMOS.find(c => c.reqKills === newKills);
   if (unlockedCamo) {
-    const wName = WEAPONS[weaponIdx]?.name || 'Weapon';
+    const wName = WEAPONS.at(weaponIdx)?.name || 'Weapon';
     addLootFeed(`MASTERY UNLOCKED: ${unlockedCamo.name} for ${wName}!`);
     playSound(880, 'sine', 0.25, 0.14);
   }
@@ -450,13 +449,13 @@ let lobbyDuckGroup = null;
 let lobbyGunGroup = null;
 let lobbyCharmPivot = null;
 let lobbyInspectTimer = 0;
-let lobbyStageObjects = [];
+let lobbyStageObjects = new Array();
 let lobbyTargetYaw = 0.25;
 let lobbySpinBoost = 0;
 
 function clearLobbyStage() {
   lobbyStageObjects.forEach(obj => scene.remove(obj));
-  lobbyStageObjects = [];
+  lobbyStageObjects = new Array();
   lobbyDuckGroup = null;
   lobbyGunGroup = null;
   lobbyCharmPivot = null;
@@ -469,9 +468,9 @@ function triggerWeaponInspect() {
   if (inRaid || !lobbyGunGroup) return;
   lobbyInspectTimer = 2.6;
   const wId = parseInt(document.getElementById('sel-weapon').value) || 0;
-  const wName = WEAPONS[wId]?.name || 'Primary Weapon';
+  const wName = WEAPONS.at(wId)?.name || 'Primary Weapon';
   const camoId = (saveData.equippedCamos && saveData.equippedCamos[wId]) || 0;
-  const camoName = WEAPON_CAMOS[camoId]?.name || 'Factory Matte';
+  const camoName = WEAPON_CAMOS.at(camoId)?.name || 'Factory Matte';
 
   const badge = document.getElementById('lobby-inspect-badge');
   const textEl = document.getElementById('lobby-inspect-text');
@@ -530,7 +529,7 @@ function updateLobbyDuckPreview() {
     scene.remove(lobbyDuckGroup);
     lobbyStageObjects = lobbyStageObjects.filter(o => o !== lobbyDuckGroup);
   }
-  const skin = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS;
+  const skin = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS.at(0);
   const wId = parseInt(document.getElementById('sel-weapon').value) || 0;
   const aTier = parseInt(document.getElementById('sel-armor').value) || 1;
   const camoId = (saveData.equippedCamos && saveData.equippedCamos[wId]) || 0;
@@ -603,7 +602,7 @@ function applyGamertagToUI(tag) {
   currentGamertag = tag;
   document.getElementById('lobby-gamertag').innerText = tag;
   document.getElementById('mp-self-tag').innerText = tag;
-  const skin = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS;
+  const skin = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS.at(0);
   network.setLocalProfile(tag, skin.hex);
 }
 
@@ -729,11 +728,11 @@ renderer.domElement.addEventListener('mousedown', (e) => {
 });
 window.addEventListener('mouseup', () => { isDraggingLobby = false; });
 
-const MODES = [
+const MODES = new Array(
   { id: 'extraction', title: 'ESCAPE FROM DUCKOV', btn: 'GAME MODE: EXTRACTION', sub: 'SOLO / CO-OP • LOOT & EXTRACT' },
   { id: 'battleroyale', title: 'DUCKNITE ROYALE', btn: 'GAME MODE: BATTLE ROYALE', sub: '20 DUCKS • LAST DUCK STANDING' },
   { id: 'tactical5v5', title: 'DUCKORANT 5v5', btn: 'GAME MODE: 5v5 SPIKE', sub: 'FIRST TO 5 • BUY PHASE & ABILITIES' }
-];
+);
 let modeIndex = 0;
 
 function getActiveMapData(mapKey, mode = selectedMode) {
@@ -808,7 +807,7 @@ document.getElementById('sel-map').addEventListener('change', syncLobbyRegionCar
 
 document.getElementById('sel-weapon').addEventListener('change', (e) => {
   const id = parseInt(e.target.value);
-  const w = WEAPONS[id];
+  const w = WEAPONS.at(id);
   if (!saveData.unlockedWeapons.includes(id)) {
     if (saveData.cash >= w.price) {
       saveData.cash -= w.price;
@@ -817,7 +816,7 @@ document.getElementById('sel-weapon').addEventListener('change', (e) => {
       playSound(600, 'sine', 0.15, 0.1);
     } else {
       alert(`Need $${w.price} Roubles to unlock ${w.name}!`);
-      e.target.value = saveData.unlockedWeapons;
+      e.target.value = saveData.unlockedWeapons.at(0);
     }
   }
   refreshMenuUI(saveData, () => writeSave(saveData));
@@ -840,9 +839,9 @@ function setupGunsmithControl(selId, btnId, pool, unlockedKey, equippedKey) {
   });
 
   document.getElementById(btnId).addEventListener('click', () => {
-    if (!saveData[unlockedKey]) saveData[unlockedKey] =;
+    if (!saveData[unlockedKey]) saveData[unlockedKey] = new Array(1).fill(0);
     const id = parseInt(document.getElementById(selId).value) || 0;
-    const cfg = pool.find(x => x.id === id) || pool;
+    const cfg = pool.find(x => x.id === id) || pool.at(0);
 
     if (!saveData[unlockedKey].includes(id)) {
       if (saveData.cash < cfg.price) return alert(`Need $${cfg.price} Roubles for ${cfg.name}!`);
@@ -870,10 +869,9 @@ document.getElementById('sel-weapon-charm').addEventListener('change', () => {
 });
 
 document.getElementById('btn-buy-charm').addEventListener('click', () => {
-  if (!saveData.unlockedCharms) saveData.unlockedCharms =;
+  if (!saveData.unlockedCharms) saveData.unlockedCharms = new Array(1).fill(0);
   const charmId = parseInt(document.getElementById('sel-weapon-charm').value) || 0;
-  const charmCfg = WEAPON_CHARMS.find(c => c.id === charmId) || WEAPON_CHARMS;
-
+const charmCfg = WEAPON_CHARMS.find(c => c.id === charmId) || WEAPON_CHARMS.at(0);
 if (!saveData.unlockedCharms.includes(charmId)) {
 if (saveData.cash < charmCfg.price) return alert(Need $${charmCfg.price} Roubles for ${charmCfg.name}!);
 saveData.cash -= charmCfg.price;
@@ -896,7 +894,7 @@ document.getElementById('sel-armor').addEventListener('change', (e) => {
       playSound(600, 'sine', 0.15, 0.1);
     } else {
       alert(`Need $${a.price} Roubles to unlock ${a.name}!`);
-      e.target.value = saveData.unlockedArmors;
+      e.target.value = saveData.unlockedArmors.at(0);
     }
   }
   refreshMenuUI(saveData, () => writeSave(saveData));
@@ -978,7 +976,7 @@ document.getElementById('btn-sell-gun').addEventListener('click', () => {
   const idx = saveData.unlockedWeapons.indexOf(gunId);
   if (idx === -1) return;
 
-  const gun = WEAPONS[gunId];
+  const gun = WEAPONS.at(gunId);
   const sellPrice = Math.floor(gun.price * 0.6);
   saveData.unlockedWeapons.splice(idx, 1);
   saveData.cash += sellPrice;
@@ -1127,15 +1125,13 @@ function renderScoreboard() {
     subEl.innerText = `Eliminations: ${player.kills}`;
   }
 
-  const entries = [
-    {
-      name: `${currentGamertag || 'You'} (You)`,
-      team: 'blue',
-      kills: player.kills,
-      status: player.hp > 0 ? `${Math.ceil(player.hp)} HP` : 'ELIMINATED',
-      alive: player.hp > 0
-    }
-  ];
+  const entries = new Array({
+    name: `${currentGamertag || 'You'} (You)`,
+    team: 'blue',
+    kills: player.kills,
+    status: player.hp > 0 ? `${Math.ceil(player.hp)} HP` : 'ELIMINATED',
+    alive: player.hp > 0
+  });
 
   remotePlayerMeshes.forEach((rm, peerId) => {
     const rp = network.remotePlayers.get(peerId);
@@ -1285,7 +1281,7 @@ function clearWorld() {
     if (bunkerHoloTable.gateSign) scene.remove(bunkerHoloTable.gateSign);
     bunkerHoloTable = null;
   }
-  swayingFoliage = [];
+  swayingFoliage = new Array();
   remotePlayerMeshes.forEach(rm => scene.remove(rm.group));
   remotePlayerMeshes.clear();
 
@@ -1295,9 +1291,20 @@ function clearWorld() {
   if (battleBusMesh) { scene.remove(battleBusMesh); battleBusMesh = null; }
   if (modeState.bombMesh) { scene.remove(modeState.bombMesh); modeState.bombMesh = null; }
 
-  mapObjects = []; obstacles = []; chests = []; aiDucks = []; bullets = [];
-  vehicles = []; props = []; grenades = []; smokeClouds = []; sentries = [];
-  activePings = []; bunkerStations = []; targetDummies = []; zones = [];
+  mapObjects = new Array();
+  obstacles = new Array();
+  chests = new Array();
+  aiDucks = new Array();
+  bullets = new Array();
+  vehicles = new Array();
+  props = new Array();
+  grenades = new Array();
+  smokeClouds = new Array();
+  sentries = new Array();
+  activePings = new Array();
+  bunkerStations = new Array();
+  targetDummies = new Array();
+  zones = new Array();
   player.drivingVehicle = null;
   player.spectatingTarget = null;
   document.getElementById('spectate-banner').style.display = 'none';
@@ -1351,7 +1358,7 @@ function addBox(x, z, w, h, d, color) {
         metalness: 0.85,
         roughness: 0.15
       });
-      [-w * 0.25, w * 0.25].forEach(wx => {
+      new Array(-w * 0.25, w * 0.25).forEach(wx => {
         const win = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.9, d + 0.08), winMat);
         win.position.set(x + wx, h * 0.58, z);
         scene.add(win);
@@ -1388,9 +1395,9 @@ function addEnterableBuilding(cx, cz, w, d, wallColor = 0x5d4037, doorSide = 'so
   scene.add(roof);
   mapObjects.push(roof);
 
-  const sideLen = (w - doorWidth) / 2;
-  if (doorSide === 'north') {
-    addBox(cx - doorWidth / 2 - sideLen / 2, cz - halfD, sideLen, wallH, thick, wallColor);
+const sideLen = (w - doorWidth) / 2;
+if (doorSide === 'north') {
+addBox(cx - doorWidth / 2 - sideLen / 2, cz - halfD, sideLen, wallH, thick, wallColor);
 addBox(cx + doorWidth / 2 + sideLen / 2, cz - halfD, sideLen, wallH, thick, wallColor);
 } else {
 addBox(cx, cz - halfD, w, wallH, thick, wallColor);
@@ -1440,7 +1447,12 @@ sandMesh.position.set(islandX, 0.1, islandZ);
 sandMesh.receiveShadow = true;
 scene.add(sandMesh);
 mapObjects.push(sandMesh);
-[[-9, 82],, [-8, 94],].forEach(([tx, tz]) => {
+new Array(
+new Array(-9, 82),
+new Array(9, 82),
+new Array(-8, 94),
+new Array(8, 94)
+).forEach(([tx, tz]) => {
 const tree = createSceneryProp('tree');
 tree.group.position.set(tx, 0.15, tz);
 scene.add(tree.group);
@@ -1526,19 +1538,19 @@ name: customName || (isFriendly ? 'Ally Duck' : isGuard ? 'ARMORY GUARD' : 'Host
 }
 function setup5v5TeamsForSide() {
 aiDucks.forEach(e => scene.remove(e.mesh.group));
-aiDucks = [];
+aiDucks = new Array();
 const isAttack = modeState.playerSide === 'attack';
 const playerZ = isAttack ? 34 : -34;
 player.pos.set(0, 0, playerZ);
 if (player.mesh) player.mesh.group.position.copy(player.pos);
-const blueNames = ['Mallard_Bot', 'Teal_Sniper', 'Pintail_Pro', 'WoodDuck_AI'];
-const redNames = ['Viper_Scav', 'Killa_Duck', 'Shadow_Beak', 'Drake_Ops', 'Red_Baron'];
+const blueNames = new Array('Mallard_Bot', 'Teal_Sniper', 'Pintail_Pro', 'WoodDuck_AI');
+const redNames = new Array('Viper_Scav', 'Killa_Duck', 'Shadow_Beak', 'Drake_Ops', 'Red_Baron');
 for (let i = 0; i < 4; i++) {
-spawnAIDuck(-14 + i * 9, playerZ, 'blue', 0x2ecc71, 100, false, 'scav', blueNames[i]);
+spawnAIDuck(-14 + i * 9, playerZ, 'blue', 0x2ecc71, 100, false, 'scav', blueNames.at(i));
 }
 const enemyZ = isAttack ? -34 : 34;
 for (let i = 0; i < 5; i++) {
-spawnAIDuck(-16 + i * 8, enemyZ, 'red', 0xd32f2f, 100, false, 'scav', redNames[i]);
+spawnAIDuck(-16 + i * 8, enemyZ, 'red', 0xd32f2f, 100, false, 'scav', redNames.at(i));
 }
 }
 function renderBunkerHoloTable(mapKey) {
@@ -1602,11 +1614,11 @@ function enterBunkerBase() {
   addBox(-19.5, 0, 1.5, 4.2, 38, 0x263238);
   addBox(19.5, 0, 1.5, 4.2, 38, 0x263238);
 
-  const stationDefs = [
+  const stationDefs = new Array(
     { type: 'gym', x: -12, z: -8, label: `GYM STATION (Lv.${saveData.gymLvl})` },
     { type: 'bench', x: 12, z: -8, label: `WORKBENCH (Lv.${saveData.benchLvl})` },
     { type: 'medic', x: -12, z: 6, label: `MEDIC BAY (Lv.${saveData.medicLvl})` }
-  ];
+  );
 
   stationDefs.forEach(st => {
     const model = createBunkerStationModel(st.type);
@@ -1630,10 +1642,10 @@ function enterBunkerBase() {
   bunkerWeaponRack = { mesh: rackModel, pos: new THREE.Vector3(12, 0, 6) };
   obstacles.push({ minX: 10.3, maxX: 13.7, minZ: 5.3, maxZ: 6.7 });
 
-  const dummyConfigs = [
+  const dummyConfigs = new Array(
     { x: -4.5, z: -16.8, armored: false, label: 'UNARMORED DUMMY' },
     { x: 4.5, z: -16.8, armored: true, label: 'ARMORED DUMMY' }
-  ];
+  );
   dummyConfigs.forEach(dc => {
     const dModel = createTargetDummyModel(dc.armored);
     dModel.group.position.set(dc.x, 0, dc.z);
@@ -1656,9 +1668,9 @@ function enterBunkerBase() {
 
   const wId = parseInt(document.getElementById('sel-weapon').value) || 0;
   const aTier = parseInt(document.getElementById('sel-armor').value) || 1;
-  const wCfg = WEAPONS[wId];
-  const aCfg = ARMORS.find(x => x.tier === aTier) || ARMORS;
-  const skinCfg = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS;
+  const wCfg = WEAPONS.at(wId);
+  const aCfg = ARMORS.find(x => x.tier === aTier) || ARMORS.at(0);
+  const skinCfg = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS.at(0);
 
   player.maxHp = 100 + (saveData.gymLvl - 1) * 20;
   player.hp = player.maxHp;
@@ -1743,12 +1755,12 @@ function startMatch(fromNetwork = false) {
   scene.add(ground);
   mapObjects.push(ground);
 
-  const scenerySpots = [
-    [-42, -32, 'tree'], [42, -32, 'oak'], [-45, 28, 'oak'], [44, 30, 'tree'],
-    [-48, -8, 'tree'], [48, -8, 'tree'], [-46, 8, 'oak'], [46, 8, 'tree'],
-    [-16, -46, 'oak'], [16, -46, 'tree'], [-28, -42, 'rock'], [28, -42, 'rock'],
-    [-30, 12, 'rock'], [30, 12, 'rock'], [-8, -14, 'sandbags'], [8, -14, 'sandbags']
-  ];
+  const scenerySpots = new Array(
+    new Array(-42, -32, 'tree'), new Array(42, -32, 'oak'), new Array(-45, 28, 'oak'), new Array(44, 30, 'tree'),
+    new Array(-48, -8, 'tree'), new Array(48, -8, 'tree'), new Array(-46, 8, 'oak'), new Array(46, 8, 'tree'),
+    new Array(-16, -46, 'oak'), new Array(16, -46, 'tree'), new Array(-28, -42, 'rock'), new Array(28, -42, 'rock'),
+    new Array(-30, 12, 'rock'), new Array(30, 12, 'rock'), new Array(-8, -14, 'sandbags'), new Array(8, -14, 'sandbags')
+  );
   scenerySpots.forEach(([sx, sz, sType]) => {
     const prop = createSceneryProp(sType);
     prop.group.position.set(sx, 0, sz);
@@ -1792,9 +1804,8 @@ function startMatch(fromNetwork = false) {
 
   const wId = parseInt(document.getElementById('sel-weapon').value) || 0;
   const aTier = parseInt(document.getElementById('sel-armor').value) || 1;
-  const wCfg = WEAPONS[wId];
-  const aCfg = ARMORS.find(x => x.tier === aTier) || ARMORS;
-  const skinCfg = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS;
+  const aCfg = ARMORS.find(x => x.tier === aTier) || ARMORS.at(0);
+  const skinCfg = SKINS.find(s => s.id === saveData.equippedSkin) || SKINS.at(0);
 
   player.maxHp = 100 + (saveData.gymLvl - 1) * 20;
   player.hp = player.maxHp;
@@ -1807,15 +1818,14 @@ function startMatch(fromNetwork = false) {
   player.thirst = 100;
   player.painkillerTimer = 0;
   player.stimTimer = 0;
-  player.rapidFireTimer
-= 0;
-player.abilityCooldown = 0;
-player.weaponIdx = selectedMode === 'tactical5v5' ? 1 : wId;
-player.ammo = WEAPONS[player.weaponIdx].mag;
-player.reloading = false;
-player.backpack = [];
-player.kills = 0;
-player.deaths = 0;
+  player.rapidFireTimer = 0;
+  player.abilityCooldown = 0;
+  player.weaponIdx = selectedMode === 'tactical5v5' ? 1 : wId;
+  player.ammo = WEAPONS.at(player.weaponIdx).mag;
+  player.reloading = false;
+  player.backpack = new Array();
+  player.kills = 0;
+  player.deaths = 0;
 player.shotsFired = 0;
 player.shotsHit = 0;
 player.killCash = 0;
@@ -1866,12 +1876,12 @@ player.mesh.group.add(flash.target);
 player.flashlight = flash;
 }
 if (selectedMode === 'extraction') {
-const buildingDefs = [
+const buildingDefs = new Array(
 { cx: -28, cz: -26, w: 9, d: 8, col: 0x5d4037, door: 'south' },
 { cx: 28, cz: -26, w: 9, d: 8, col: 0x455a64, door: 'south' },
 { cx: -28, cz: 22, w: 8, d: 8, col: 0x6d4c41, door: 'east' },
 { cx: 28, cz: 22, w: 8, d: 8, col: 0x4e342e, door: 'west' }
-];
+);
 buildingDefs.forEach(b => {
 addEnterableBuilding(b.cx, b.cz, b.w, b.d, b.col, b.door);
 const cMesh = createChestMesh(true);
@@ -1904,7 +1914,10 @@ spawnAIDuck(25.5, -24.5, 'red', 0x37474f, 145, false, 'guard', 'ARMORY GUARD');
 spawnAIDuck(30.5, -27.5, 'red', 0x37474f, 145, false, 'guard', 'ARMORY GUARD');
 spawnVehicle(-10, 26, 'buggy');
 spawnVehicle(14, -4, 'truck');
-[[-6, 12], [6, 12], [-12, -10], [12, -10], [-20, -4], [20, -4]].forEach(([bx, bz], idx) => {
+new Array(
+new Array(-6, 12), new Array(6, 12), new Array(-12, -10),
+new Array(12, -10), new Array(-20, -4), new Array(20, -4)
+).forEach(([bx, bz], idx) => {
 spawnProp(bx, bz, idx % 2 === 0 ? 'barrel' : 'crate');
 });
 addZoneRing(0, -42, 4.5, 0x2ecc71, 'EXTRACT');
@@ -1915,12 +1928,12 @@ corpseMesh.position.set(saveData.corpse.x, 0, saveData.corpse.z);
 scene.add(corpseMesh);
 }
 } else if (selectedMode === 'battleroyale') {
-const brBuildings = [
+const brBuildings = new Array(
 { cx: -28, cz: -28, w: 9, d: 8, col: 0x5d4037, door: 'south' },
 { cx: 28, cz: -28, w: 9, d: 8, col: 0x455a64, door: 'south' },
 { cx: -28, cz: 22, w: 8, d: 8, col: 0x6d4c41, door: 'east' },
 { cx: 28, cz: 22, w: 8, d: 8, col: 0x4e342e, door: 'west' }
-];
+);
 brBuildings.forEach(b => {
 addEnterableBuilding(b.cx, b.cz, b.w, b.d, b.col, b.door);
 const cMesh = createChestMesh(true);
@@ -1942,15 +1955,18 @@ cMesh.position.set(cx, 0.42, cz);
 scene.add(cMesh);
 chests.push({ mesh: cMesh, pos: new THREE.Vector3(cx, 0, cz), opened: false, isRare: i % 3 === 0 });
 }
-const palette = [0x00e5ff, 0xff5252, 0x76ff03, 0xffb300, 0xe040fb, 0xff6e40];
+const palette = new Array(0x00e5ff, 0xff5252, 0x76ff03, 0xffb300, 0xe040fb, 0xff6e40);
 for (let i = 0; i < 19; i++) {
 const ang = (i / 19) * Math.PI * 2;
 const rad = 26 + Math.random() * 18;
-spawnAIDuck(Math.cos(ang) * rad, Math.sin(ang) * rad, 'red', palette[i % palette.length], 95, false, 'scav');
+spawnAIDuck(Math.cos(ang) * rad, Math.sin(ang) * rad, 'red', palette.at(i % palette.length), 95, false, 'scav');
 }
 spawnVehicle(-22, 24, 'buggy');
 spawnVehicle(22, -22, 'truck');
-[[-8, 8], [8, 8], [-15, -15], [15, -15], [0, -18], [0, 18]].forEach(([bx, bz], idx) => {
+new Array(
+new Array(-8, 8), new Array(8, 8), new Array(-15, -15),
+new Array(15, -15), new Array(0, -18), new Array(0, 18)
+).forEach(([bx, bz], idx) => {
 spawnProp(bx, bz, idx % 2 === 0 ? 'barrel' : 'crate');
 });
 stormWallMesh = new THREE.Mesh(
@@ -1971,8 +1987,8 @@ addLootFeed('Spawn Island & Battle Bus Active! Board the Bus or press [Space] to
 } else if (selectedMode === 'tactical5v5') {
 modeState.playerSide = 'attack';
 modeState.halftimeSwitched = false;
-const siteA = mData.siteA || [-24, -24];
-const siteB = mData.siteB || [24, -24];
+const siteA = mData.siteA || new Array(-24, -24);
+const siteB = mData.siteB || new Array(24, -24);
 addZoneRing(siteA.at(0), siteA.at(1), 4.5, 0xff5252, 'SITE A');
 addZoneRing(siteB.at(0), siteB.at(1), 4.5, 0xff5252, 'SITE B');
 setup5v5TeamsForSide();
@@ -1981,7 +1997,6 @@ openBuyMenu();
 document.getElementById('lobby-ui').style.display = 'none';
 document.getElementById('hud').style.display = 'block';
 }
-
 function openBuyMenu() {
   buyMenuOpen = true;
   modeState.buyPhaseTimer = 12;
@@ -2403,7 +2418,7 @@ function handleInteract() {
     }
 
     if (bunkerWeaponRack && player.pos.distanceTo(bunkerWeaponRack.pos) < 3.5) {
-      const unlocked = saveData.unlockedWeapons ||;
+      const unlocked = saveData.unlockedWeapons || new Array(1).fill(0);
       const curIdx = unlocked.indexOf(player.weaponIdx);
       const nextId = unlocked.at((curIdx + 1) % unlocked.length);
       player.weaponIdx = nextId;
@@ -2625,7 +2640,7 @@ function handleInteract() {
 
 function shootBullet(origin, dir, speed, dmg, isPlayerTeam, isHeadshot = false) {
   const showFx = getGfx().fx !== false;
-  const color = isHeadshot ? 0xff1744 : isPlayerTeam ? 0x00e5ff : 0xff5252;
+const color = isHeadshot ? 0xff1744 : isPlayerTeam ? 0x00e5ff : 0xff5252;
 const mesh = new THREE.Mesh(
 new THREE.SphereGeometry(isHeadshot ? 0.16 : 0.12, 6, 6),
 new THREE.MeshBasicMaterial({ color })
@@ -2788,13 +2803,11 @@ document.getElementById('sum-kd').innerText = kd;
 document.getElementById('sum-acc').innerText = ${acc}%;
 document.getElementById('sum-cash').innerText = +$${(opts.cashEarned || 0).toLocaleString()};
 document.getElementById('sum-extra-note').innerText = opts.note || '';
-const candidates = [
-{
+const candidates = new Array({
 name: currentGamertag || 'DuckOperator_01',
 kills: player.kills,
 score: player.kills * 120 + (opts.win ? 150 : 0) + acc
-}
-];
+});
 aiDucks.forEach(ai => {
 candidates.push({
 name: ai.name || (ai.isBoss ? 'BOSS KILLA-DUCK' : ai.isGuard ? 'ARMORY GUARD' : ai.team === 'blue' ? 'Mallard_Bot' : 'Viper_Scav'),
@@ -2867,7 +2880,7 @@ note: extraNote
 player.deaths++;
 let lossNote = '';
 if (modeState.mode === 'extraction' && player.backpack.length > 0) {
-saveData.corpse = { mapKey: modeState.mapKey, x: player.pos.x, z: player.pos.z, items: [...player.backpack] };
+saveData.corpse = { mapKey: modeState.mapKey, x: player.pos.x, z: player.pos.z, items: new Array(...player.backpack) };
 lossNote = Your gear dropped at your corpse on ${mData.label}. Deploy there to recover it!;
 }
 saveData.medkits = Math.max(1, player.medkits);
@@ -3166,7 +3179,7 @@ function animate() {
 
   let aimAngle = 0;
   if (!player.drivingVehicle && player.hp > 0) {
-    raycaster.setFromCamera(mouseNDC, camera);
+raycaster.setFromCamera(mouseNDC, camera);
 if (raycaster.ray.intersectPlane(aimPlane, aimPoint)) {
 lookVec.subVectors(aimPoint, player.pos);
 lookVec.y = 0;
@@ -3647,7 +3660,7 @@ prompt.style.display = 'block';
 prompt.innerText = Press [${formatKeyCode(binds.interact)}] to Reclaim Your Corpse Loot;
 }
 }
-const remoteList = [];
+const remoteList = new Array();
 remotePlayerMeshes.forEach((rm, peerId) => {
 const rp = network.remotePlayers.get(peerId);
 if (rp && rp.inRaid && rp.pos) {
