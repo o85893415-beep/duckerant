@@ -459,37 +459,24 @@
   </div>
 
     <script>
-    const showErr = (msg) => {
-      const el = document.getElementById('auth-error');
-      if (el) el.innerText = msg;
-    };
-    window.addEventListener('error', (e) => showErr('JS Error: ' + e.message + ' (line ' + e.lineno + ')'));
-    window.addEventListener('unhandledrejection', (e) => showErr('Load Error: ' + (e.reason?.message || e.reason)));
-
     function loadLib(parts) {
       return new Promise((resolve, reject) => {
         const s = document.createElement('script');
         s.src = parts.join('/');
         s.onload = resolve;
-        s.onerror = () => reject(new Error('Blocked or failed to load: ' + parts.join('/')));
+        s.onerror = reject;
         document.body.appendChild(s);
       });
     }
 
     (async () => {
-      try {
-        await loadLib(['https:', '', 'cdn.jsdelivr.net', 'npm', 'three@0.128.0', 'build', 'three.min.js']);
-        await loadLib(['https:', '', 'cdn.jsdelivr.net', 'npm', 'peerjs@1.5.4', 'dist', 'peerjs.min.js']);
-        const m = document.createElement('script');
-        m.type = 'module';
-        m.src = './js/main.js';
-        document.body.appendChild(m);
-      } catch (err) {
-        showErr(err.message);
-      }
+      await loadLib(['https:', '', 'cdn.jsdelivr.net', 'npm', 'three@0.128.0', 'build', 'three.min.js']);
+      await loadLib(['https:', '', 'cdn.jsdelivr.net', 'npm', 'peerjs@1.5.4', 'dist', 'peerjs.min.js']);
+      const m = document.createElement('script');
+      m.type = 'module';
+      m.src = './js/main.js';
+      document.body.appendChild(m);
     })();
   </script>
 </body>
 </html>
-
-
