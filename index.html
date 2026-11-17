@@ -446,7 +446,7 @@
     <div id="loot-feed"></div>
     <div id="spectate-banner" style="display:none;">
       <div style="font-size:11px; color:#80deea; letter-spacing:1px;">SPECTATING TEAMMATE • LEFT-CLICK TO SWITCH</div>
-      <div id="spectate-target-name" style="font-size:20px; font-weight:900; color:#2ecc71;">Mallard_Bot</div>
+     <div id="spectate-target-name" style="font-size:20px; font-weight:900; color:#2ecc71;">Mallard_Bot</div>
     </div>
     <div id="controls-bar">
       <strong>WASD</strong> Move | <strong>Mouse</strong> Aim | <strong>LMB</strong> Shoot | <strong>Z</strong> Ping | <strong>E</strong> Loot/Car | <strong>G/V/C</strong> Nades | <strong>T</strong> Thermal | <strong>Tab</strong> Bag | <strong>M</strong> Score | <strong>Enter</strong> Chat | <strong>Esc</strong> Menu
@@ -458,8 +458,26 @@
     <input id="chat-input" type="text" placeholder="Press [Enter] to type squad message..." maxlength="120" />
   </div>
 
-  <script src="https://cloudflare.com"></script>
-  <script src="https://unpkg.com"></script>
-  <script type="module" src="./js/main.js"></script>
+  <script>
+    function loadLib(parts) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = parts.join('/');
+        s.onload = resolve;
+        s.onerror = reject;
+        document.body.appendChild(s);
+      });
+    }
+
+    (async () => {
+      await loadLib(['https:', '', 'cdn.jsdelivr.net', 'npm', 'three@0.128.0', 'build', 'three.min.js']);
+      await loadLib(['https:', '', 'cdn.jsdelivr.net', 'npm', 'peerjs@1.5.4', 'dist', 'peerjs.min.js']);
+      const m = document.createElement('script');
+      m.type = 'module';
+      m.src = './js/main.js';
+      document.body.appendChild(m);
+    })();
+  </script>
 </body>
 </html>
+
